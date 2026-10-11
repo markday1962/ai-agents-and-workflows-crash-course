@@ -41,7 +41,15 @@ Notes:
   python -c "import keyring; print(keyring.get_password('openai', 'api_key') is not None)"
   ```
   Avoid `keyring get`, which prints the full key to the terminal.
-- You can also see the item in the Keychain Access app (search for `openai`).
+- To see the item, use the Keychain Access app, not the Passwords app. Passwords
+  only shows website and app logins, passkeys and Wi-Fi passwords, not items
+  saved by scripts. Keychain Access is no longer in the Applications folder;
+  open it from Spotlight or with:
+  ```
+  open "/System/Library/CoreServices/Applications/Keychain Access.app"
+  ```
+  Select **login** in the sidebar and search for `openai`. The item shows as an
+  "application password".
 - The key lives in your login keychain, not in this repo, so any project on
   your Mac can use it (see below).
 - `keyring` uses the system's own store on other platforms too (Windows
