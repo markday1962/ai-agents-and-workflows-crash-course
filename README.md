@@ -65,12 +65,24 @@ security find-generic-password -s openai -a api_key -w
 
 `-w` prints the key itself, so use it inside another command rather than on
 its own. For example, to give every terminal an `OPENAI_API_KEY` environment
-variable (which the OpenAI SDK picks up automatically), add this to
-`~/.zshrc`:
+variable (which the OpenAI SDK picks up automatically), add this line to your
+shell profile: `~/.bash_profile` if your shell is bash, or `~/.zshrc` if it's
+zsh (check with `echo $SHELL`):
 
 ```
-export OPENAI_API_KEY=$(security find-generic-password -s openai -a api_key -w)
+export OPENAI_API_KEY=$(security find-generic-password -s openai -a api_key -w 2>/dev/null)
 ```
+
+`2>/dev/null` keeps new terminals quiet if the key is ever missing. The
+variable is only set in terminals opened after the change. To check it's set
+without printing the key:
+
+```
+[ -n "$OPENAI_API_KEY" ] && echo set || echo missing
+```
+
+The agents in this repo don't need this variable; they read the Keychain
+directly.
 
 macOS controls which programs can read each Keychain item. The first time a
 different program reads the key (another Python install or venv, or the
