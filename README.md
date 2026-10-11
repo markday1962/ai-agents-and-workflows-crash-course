@@ -11,4 +11,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Each agent reads `OPENAI_API_KEY` from a `.env` file in its own folder.
+The agents read the OpenAI API key from the macOS Keychain. Store it once
+(you'll be prompted for the key):
+
+```
+keyring set openai api_key
+```

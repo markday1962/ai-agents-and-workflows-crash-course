@@ -1,11 +1,13 @@
 from openai import OpenAI
+import keyring
 
-## Required to read our .env file
-from dotenv import load_dotenv
-load_dotenv()
+## Retrieve openai api key from the macOS Keychain
+OPENAI_API_KEY = keyring.get_password("openai", "api_key")
+if OPENAI_API_KEY is None:
+    raise RuntimeError("No OpenAI key in keychain. Run: keyring set openai api_key")
 
 ## Openai client
-client = OpenAI() # No need to define apikey loads automatically
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def summarise_text(text: str) -> str:

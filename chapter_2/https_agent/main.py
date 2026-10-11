@@ -1,12 +1,10 @@
 import requests
-import os
+import keyring
 
-## Required to read our .env file
-from dotenv import load_dotenv
-load_dotenv()
-
-## Retrieve openai api key from .env file
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+## Retrieve openai api key from the macOS Keychain
+OPENAI_API_KEY = keyring.get_password("openai", "api_key")
+if OPENAI_API_KEY is None:
+    raise RuntimeError("No OpenAI key in keychain. Run: keyring set openai api_key")
 
 ## We load this first
 url = "https://api.openai.com/v1/responses"
