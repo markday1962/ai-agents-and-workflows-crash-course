@@ -14,6 +14,11 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def get_website_html(url: str) -> str:
+    ## Default to https if the url has no scheme
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+
     try:
         response = requests.get(url)
         response.raise_for_status()
