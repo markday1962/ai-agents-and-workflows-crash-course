@@ -33,7 +33,7 @@ def run_agent(text: str) -> str:
         You are a professional content extractor.
         Extract only the meaningful content of the following HTML.
         Do not include headers, footers, ads, navigation links or scripts.
-        Summerise the website.
+        Summarise the website.
         <text>
         {text}
         </text>
