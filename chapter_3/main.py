@@ -27,10 +27,13 @@ def get_website_html(url: str) -> str:
         print(f"Error fetching the URL {url}: {e}")
         return ""
 
+
 def run_agent(text: str) -> str:
     prompt = f"""
-        You are a helpful assistant that summarises the content of a web page.
-        Please summarise the main content of the following HTML:
+        You are a professional content extractor.
+        Extract only the meaningful content of the following HTML.
+        Do not include headers, footers, ads, navigation links or scripts.
+        Summerise the website.
         <text>
         {text}
         </text>
@@ -51,8 +54,6 @@ if __name__ == "__main__":
 
     print(f"Fetching HTML from {website_url}")
     html = get_website_html(website_url)
-
-    print(html)
 
     if not html:
         print(f"Unable to retrieve HTML content from {website_url}, Exiting.")
