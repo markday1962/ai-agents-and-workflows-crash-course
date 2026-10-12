@@ -44,7 +44,11 @@ def run_agent(text: str) -> str:
 
 
 if __name__ == "__main__":
-    website_url = input("Input a website URL: ")
+    website_url = input("Input a website URL: ").strip()
+    if not website_url:
+        print("No website URL entered, Exiting.")
+        sys.exit(1)
+
     print(f"Fetching HTML from {website_url}")
     html = get_website_html(website_url)
 
