@@ -24,7 +24,8 @@ def get_website_html(url: str) -> str:
 
 def run_agent(text: str) -> str:
     prompt = f"""
-        You are a helpful assistant.
+        You are a helpful assistant that summarises the content of a web page.
+        Please summarise the main content of the following HTML:
         <text>
         {text}
         </text>
@@ -47,5 +48,6 @@ if __name__ == "__main__":
     if not html:
         print(f"Unable to retrieve HTML content from {website_url}, Exiting.")
         sys.exit(1)
-    # result = run_agent(usr_input)
-    # print("Result: \n", result)
+
+    result = run_agent(html)
+    print("Result: \n", result)
