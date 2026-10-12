@@ -42,6 +42,8 @@ if __name__ == "__main__":
     print(f"Fetching HTML from {website_url}")
     html = get_website_html(website_url)
 
+    print(html)
+
     if not html:
         print(f"Unable to retrieve HTML content from {website_url}, Exiting.")
         sys.exit(1)
