@@ -2,6 +2,7 @@ import sys
 
 import keyring
 import requests
+from bs4 import BeautifulSoup
 from openai import OpenAI
 
 # Retrieve openai api key from the macOS Keychain
@@ -22,10 +23,15 @@ def get_website_html(url: str) -> str:
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.text
     except requests.RequestException as e:
         print(f"Error fetching the URL {url}: {e}")
         return ""
+
+    # Strip scripts, styles and inline svgs so the page fits the model's context
+    soup = BeautifulSoup(response.text, "html.parser")
+    for tag in soup(["script", "style", "svg"]):
+        tag.decompose()
+    return str(soup)
 
 
 def extract_website_core_content(text: str) -> str:
@@ -96,6 +102,7 @@ def main():
     blog_markdown = create_blog_post(core_content)
 
     print("Result: \n", blog_markdown)
+    save_markdown_to_file(blog_markdown)
 
 
 if __name__ == "__main__":

@@ -2,3 +2,4 @@ keyring
 requests
 openai
 ruff
+beautifulsoup4
