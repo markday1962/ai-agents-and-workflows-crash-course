@@ -221,3 +221,9 @@ __marimo__/
 
 # Generated blog post output
 blog_post.md
+
+# Local PDF used to test the chapter 5 summariser
+chapter_5/PPG_VPN_Template-Dora-v2.pdf
+
+# macOS Finder metadata
+.DS_Store
