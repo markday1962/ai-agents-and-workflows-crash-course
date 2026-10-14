@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import sys
 
 import keyring
@@ -87,6 +88,29 @@ def extract_report_details(pdf_content: str) -> MedicalReport:
     )
 
     return response.output_parsed
+
+
+def create_database():
+    conn = sqlite3.connect("medical_reports.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS medical_reports (
+            id INTEGER PRIMARY KEY,
+            hospital_name TEXT,
+            hospital_address TEXT,
+            physician TEXT,
+            patient_name TEXT,
+            patient_age INTEGER,
+            patient_gender TEXT,
+            patient_id TEXT,
+            report_date TEXT,
+            diagnosis TEXT,
+            prescription TEXT,
+            notes TEXT
+        )
+    """)
+    conn.commit()
+    return conn
 
 
 def main():

@@ -227,3 +227,6 @@ chapter_5/PPG_VPN_Template-Dora-v2.pdf
 
 # macOS Finder metadata
 .DS_Store
+
+# SQLite database of extracted medical reports (contains patient data)
+medical_reports.db
