@@ -4,3 +4,5 @@ openai
 ruff
 beautifulsoup4
 ollama
+pypdf
+pydantic

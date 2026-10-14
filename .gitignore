@@ -221,3 +221,9 @@ __marimo__/
 
 # Generated blog post output
 blog_post.md
+
+# macOS Finder metadata
+.DS_Store
+
+# SQLite database of extracted medical reports (contains patient data)
+medical_reports.db
