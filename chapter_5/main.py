@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+from datetime import date
 
 import keyring
 from openai import OpenAI
@@ -38,8 +39,9 @@ class MedicalReport(BaseModel):
         ..., description="Details of the hospital issuing the medical report"
     )
     patient: Patient = Field(..., description="Details of the patient in the report")
-    report_date: str = Field(
-        ..., description="Date of the diagnosis given in the medical report"
+    report_date: date = Field(
+        ...,
+        description="Date of the diagnosis given in the medical report, as YYYY-MM-DD",
     )
     diagnosis: str = Field(..., description="Diagnosis given in the medical report")
     prescription: str = Field(
@@ -109,8 +111,51 @@ def create_database():
             notes TEXT
         )
     """)
+    # The same report for the same patient can only be stored once
+    cursor.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS unique_report
+        ON medical_reports (hospital_name, patient_id, report_date)
+    """)
     conn.commit()
     return conn
+
+
+def insert_report(conn: sqlite3.Connection, report: MedicalReport) -> bool:
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT OR IGNORE INTO medical_reports (
+            hospital_name,
+            hospital_address,
+            physician,
+            patient_name,
+            patient_age,
+            patient_gender,
+            patient_id,
+            report_date,
+            diagnosis,
+            prescription,
+            notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            report.hospital.name,
+            report.hospital.address,
+            report.hospital.physician,
+            report.patient.name,
+            report.patient.age,
+            report.patient.gender,
+            report.patient.patient_id,
+            report.report_date.isoformat(),
+            report.diagnosis,
+            report.prescription,
+            report.notes,
+        ),
+    )
+    conn.commit()
+
+    # No row is inserted when the report is already in the database
+    return cursor.rowcount == 1
 
 
 def main():
@@ -138,9 +183,20 @@ def main():
     print("Summarising the PDF content")
     summary = summarise_pdf_content(pdf_content)
     print(f"\n{summary}")
+
+    print("Extracting medical report details")
+    report = extract_report_details(pdf_content)
+    if report is None:
+        print("Error: The model did not return the medical report details")
+        return
+
     print("Creating database")
     conn = create_database()
     print("Inserting medical records")
+    if insert_report(conn, report):
+        print("Medical record saved")
+    else:
+        print("Medical record already exists, skipping")
     conn.close()
 
 
