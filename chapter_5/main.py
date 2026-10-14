@@ -138,6 +138,10 @@ def main():
     print("Summarising the PDF content")
     summary = summarise_pdf_content(pdf_content)
     print(f"\n{summary}")
+    print("Creating database")
+    conn = create_database()
+    print("Inserting medical records")
+    conn.close()
 
 
 if __name__ == "__main__":
