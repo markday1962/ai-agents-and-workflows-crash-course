@@ -3,3 +3,4 @@ requests
 openai
 ruff
 beautifulsoup4
+ollama
