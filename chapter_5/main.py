@@ -5,7 +5,7 @@ from datetime import date
 
 import keyring
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
@@ -54,23 +54,6 @@ def get_pdf_content(pdf_path: str) -> str:
     with open(pdf_path, "rb") as f:
         reader = PdfReader(f)
         return "\n".join(page.extract_text() for page in reader.pages)
-
-
-def summarise_pdf_content(text: str) -> str:
-    pdf_content_prompt = f"""
-        You are a professional document summariser.
-        Summarise the following text extracted from a PDF document.
-        Give a short overview, then the key points as a bulleted list.
-        <text>
-        {text}
-        </text>
-    """
-    response = client.responses.create(
-        model="gpt-4o-mini",
-        input=pdf_content_prompt,
-    )
-
-    return response.output_text
 
 
 def extract_report_details(pdf_content: str) -> MedicalReport:
@@ -180,12 +163,13 @@ def main():
         print(f"Error: No text found in {file_path}")
         return
 
-    print("Summarising the PDF content")
-    summary = summarise_pdf_content(pdf_content)
-    print(f"\n{summary}")
+    try:
+        print("Extracting medical report details")
+        report = extract_report_details(pdf_content)
+    except ValidationError as e:
+        print(f"Error: The model returned invalid medical report details: {e}")
+        return
 
-    print("Extracting medical report details")
-    report = extract_report_details(pdf_content)
     if report is None:
         print("Error: The model did not return the medical report details")
         return
