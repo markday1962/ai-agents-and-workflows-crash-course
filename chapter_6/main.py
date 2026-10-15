@@ -1,9 +1,14 @@
+import base64
 import sys
 
 import keyring
 import requests
 from bs4 import BeautifulSoup
 from openai import OpenAI
+
+# Pages with less visible text than this don't give the models enough to
+# work with, so they invent the post instead
+MIN_WEBSITE_TEXT_LENGTH = 500
 
 # Retrieve openai api key from the macOS Keychain
 OPENAI_API_KEY = keyring.get_password("openai", "api_key")
@@ -85,6 +90,52 @@ def save_markdown_to_file(markdown_text: str, filename: str = "blog_post.md"):
     print(f"\n Blog post saved to: {filename}")
 
 
+def summarise_for_thumbnail(article: str) -> str:
+    prompt = f"""
+        Summarise the following blog post in one or two sentences for an
+        image generator. Describe the objects, materials and setting the
+        post is about, not the people. Only use details from the post.
+        <post>
+        {article}
+        </post>
+    """
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=prompt,
+    )
+
+    return response.output_text.strip()
+
+
+def generate_thumbnail_image(article: str, filename: str = "thumbnail.png"):
+    # Use the post's markdown title as the subject; the full post is too long
+    # and the model tends to draw its text into the image
+    title = next(
+        (line[2:].strip() for line in article.splitlines() if line.startswith("# ")),
+        article[:200],
+    )
+    summary = summarise_for_thumbnail(article)
+
+    print("Generating thumbnail image...")
+    response = client.images.generate(
+        model="gpt-image-1",
+        prompt=(
+            f"A thumbnail image for a blog post titled: {title}. "
+            f"The post is about: {summary} "
+            "Do not include any people, text or lettering in the image."
+        ),
+        size="1024x1024",
+        n=1,
+    )
+
+    # gpt-image models return the image as base64 rather than a url
+    image_data = base64.b64decode(response.data[0].b64_json)
+    with open(filename, "wb") as f:
+        f.write(image_data)
+
+    print(f"Thumbnail image saved to: {filename}")
+
+
 def main():
     website_url = input("Input a website URL: ").strip()
     if not website_url:
@@ -98,11 +149,17 @@ def main():
         print(f"Unable to retrieve text content from {website_url}, Exiting.")
         sys.exit(1)
 
+    if len(website_text) < MIN_WEBSITE_TEXT_LENGTH:
+        print(
+            f"Only {len(website_text)} characters of text found on {website_url}, "
+            "not enough to write a blog post from. Try a page with more text, Exiting."
+        )
+        sys.exit(1)
+
     core_content = extract_website_core_content(website_text)
     blog_markdown = create_blog_post(core_content)
-
-    print("Result: \n", blog_markdown)
     save_markdown_to_file(blog_markdown)
+    generate_thumbnail_image(blog_markdown)
 
 
 if __name__ == "__main__":
