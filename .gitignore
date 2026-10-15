@@ -219,8 +219,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Generated blog post output
+# Generated blog post and thumbnail output
 blog_post.md
+thumbnail.png
 
 # macOS Finder metadata
 .DS_Store
